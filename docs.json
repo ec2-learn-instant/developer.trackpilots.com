@@ -323,5 +323,51 @@
       "title": "Page Not Found",
       "description": "Oops! The page you’re looking for doesn’t exist or may have been moved."
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/changelog/2026/february",
+      "destination": "/changelog/2026/february-2026"
+    },
+    {
+      "source": "/changelog/2026/january",
+      "destination": "/changelog/2026/january-2026"
+    },
+    {
+      "source": "/changelog/2026/april",
+      "destination": "/changelog/2026/april-2026"
+    },
+    {
+      "source": "/changelog/2026/may",
+      "destination": "/changelog/2026/may-2026"
+    },
+    {
+      "source": "/changelog/2024/december-2025",
+      "destination": "/changelog/2025/december-2025"
+    },
+    {
+      "source": "/changelog/2025/december",
+      "destination": "/changelog/2025/december-2025"
+    },
+    {
+      "source": "/changelog/2025/november",
+      "destination": "/changelog/2025/november-2025"
+    },
+    {
+      "source": "/changelog/2025/october",
+      "destination": "/changelog/2025/october-2025"
+    },
+    {
+      "source": "/changelog/2025/september",
+      "destination": "/changelog/2025/september-2025"
+    },
+    {
+      "source": "/changelog/2025/february",
+      "destination": "/changelog/2025/february-2025"
+    },
+    {
+      "source": "/changelog/2025/january",
+      "destination": "/changelog/2025/january-2025"
+    }
+  ]
 }
