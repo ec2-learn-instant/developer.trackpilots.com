@@ -1,0 +1,271 @@
+---
+title: "Error Codes"
+description: "Understand Trackpilots API error responses and how to resolve them"
+icon: "circle-exclamation"
+---
+
+## Error Response Format
+
+All Trackpilots API errors follow a consistent response structure:
+
+```json
+{
+  "success": false,
+  "statusCode": 401,
+  "statusMessage": "Upgrade required",
+  "data": null,
+  "error": {
+    "message": "Upgrade required to use Trackpilots APIs",
+    "code": "PLAN_EXPIRED"
+  }
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `success` | boolean | Always `false` for error responses |
+| `statusCode` | number | HTTP-equivalent status code |
+| `statusMessage` | string | Short human-readable status label |
+| `data` | null | Always `null` for error responses |
+| `error.message` | string | Detailed description of the error |
+| `error.code` | string | Machine-readable error code for programmatic handling |
+
+---
+
+## Authentication & Authorization Errors
+
+All Trackpilots API endpoints require a valid API key sent in the `Authorization` header. The following errors are returned when authentication fails.
+
+### AUTHORIZATION\_HEADER\_MISSING
+
+The request was sent without an `Authorization` header.
+
+```json
+{
+  "success": false,
+  "statusCode": 401,
+  "statusMessage": "Authentication token header is missing",
+  "data": null,
+  "error": {
+    "message": "Authorization header is missing",
+    "code": "AUTHORIZATION_HEADER_MISSING"
+  }
+}
+```
+
+**Fix:** Add the `Authorization` header to every request.
+
+```http
+Authorization: Bearer YOUR_API_KEY
+```
+
+---
+
+### INVALID\_API\_KEY\_SCHEMA
+
+The `Authorization` header was present but did not use the `Bearer` scheme.
+
+```json
+{
+  "success": false,
+  "statusCode": 401,
+  "statusMessage": "Invalid authentication token schema",
+  "data": null,
+  "error": {
+    "message": "Authorization header must start with 'Bearer'",
+    "code": "INVALID_API_KEY_SCHEMA"
+  }
+}
+```
+
+**Fix:** Ensure the header value is prefixed with `Bearer ` (note the space).
+
+```http
+Authorization: Bearer YOUR_API_KEY
+```
+
+Common mistakes: sending `Token YOUR_API_KEY`, `API_KEY`, or the key value directly without a scheme.
+
+---
+
+### API\_KEY\_MISSING
+
+The `Authorization: Bearer` header was present but the key value after it was empty.
+
+```json
+{
+  "success": false,
+  "statusCode": 401,
+  "statusMessage": "Authentication token is missing",
+  "data": null,
+  "error": {
+    "message": "API key value is missing",
+    "code": "API_KEY_MISSING"
+  }
+}
+```
+
+**Fix:** Make sure your API key value is not empty or `undefined` at the time the request is made. Check environment variable loading if using `.env` files.
+
+---
+
+### INVALID\_API\_KEY
+
+The API key was provided but does not match any active key on record — either it was never valid, has been deleted, or has been deactivated.
+
+```json
+{
+  "success": false,
+  "statusCode": 401,
+  "statusMessage": "Authentication failed",
+  "data": null,
+  "error": {
+    "message": "Provided API key is invalid or inactive",
+    "code": "INVALID_API_KEY"
+  }
+}
+```
+
+**Fix:**
+
+1. Log in to the Trackpilots dashboard and go to **Settings → Developer Tools → API Keys**.
+2. Confirm the key you are using is listed and shows an **Active** status.
+3. If the key has been deleted or deactivated, generate a new one and update your integration.
+
+---
+
+### PLAN\_EXPIRED
+
+<Warning>
+**This error is returned from every API endpoint when the organisation's subscription has expired or is on a plan that does not include API access.**
+</Warning>
+
+```json
+{
+  "success": false,
+  "statusCode": 401,
+  "statusMessage": "Upgrade required",
+  "data": null,
+  "error": {
+    "message": "Upgrade required to use Trackpilots APIs",
+    "code": "PLAN_EXPIRED"
+  }
+}
+```
+
+**Why this happens**
+
+- The organisation's paid subscription has **expired** and has not been renewed.
+- The organisation is on the **Free (Basic) plan**, which does not include API access.
+- The subscription is in a **payment failure** or **pending** state.
+- The API key belongs to an account whose plan has since been downgraded or cancelled.
+
+**How to resolve**
+
+**Step 1 — Check your current plan**
+
+Log in to the Trackpilots dashboard and navigate to **Settings → Billing**. Confirm the subscription status shows **Active**.
+
+**Step 2 — Renew or upgrade**
+
+If the plan has expired or is on the Free tier, upgrade to the **Starter Pack** or higher to re-enable API access.
+
+- Visit [trackpilots.com/pricing](https://trackpilots.com/pricing) to compare plans.
+- Click **Upgrade Now** inside the dashboard Billing page.
+
+**Step 3 — Verify your API key**
+
+After the plan is active, go to **Settings → Developer Tools → API Keys** and confirm your key is still active. If needed, generate a fresh key and replace it in your integration.
+
+**Step 4 — Retry the request**
+
+Once the plan is active and the key is valid, all endpoints will resume responding normally. No other changes to your integration are required.
+
+<Note>
+If your plan shows **Active** in the dashboard but you are still receiving `PLAN_EXPIRED`, contact support — there may be a sync issue between the billing system and the API gateway.
+</Note>
+
+---
+
+## Handling errors in code
+
+Check the `error.code` field to handle specific errors programmatically without relying on HTTP status codes alone.
+
+<CodeGroup>
+
+```javascript JavaScript
+const response = await fetch("https://api.trackpilots.com/v1/...", {
+  headers: { Authorization: `Bearer ${process.env.TRACKPILOTS_API_KEY}` },
+});
+
+const body = await response.json();
+
+if (!body.success) {
+  switch (body.error.code) {
+    case "PLAN_EXPIRED":
+      throw new Error("Trackpilots subscription expired. Please upgrade your plan.");
+    case "INVALID_API_KEY":
+      throw new Error("Invalid or inactive API key. Check your credentials.");
+    case "API_KEY_MISSING":
+    case "AUTHORIZATION_HEADER_MISSING":
+    case "INVALID_API_KEY_SCHEMA":
+      throw new Error("API key is not configured correctly in the request.");
+    default:
+      throw new Error(`API error [${body.error.code}]: ${body.error.message}`);
+  }
+}
+```
+
+```python Python
+import requests
+import os
+
+response = requests.get(
+    "https://api.trackpilots.com/v1/...",
+    headers={"Authorization": f"Bearer {os.environ['TRACKPILOTS_API_KEY']}"},
+)
+
+body = response.json()
+
+if not body.get("success"):
+    code = body["error"]["code"]
+    msg = body["error"]["message"]
+
+    if code == "PLAN_EXPIRED":
+        raise Exception("Trackpilots subscription expired. Please upgrade your plan.")
+    elif code == "INVALID_API_KEY":
+        raise Exception("Invalid or inactive API key. Check your credentials.")
+    elif code in ("API_KEY_MISSING", "AUTHORIZATION_HEADER_MISSING", "INVALID_API_KEY_SCHEMA"):
+        raise Exception("API key is not configured correctly in the request.")
+    else:
+        raise Exception(f"API error [{code}]: {msg}")
+```
+
+```bash cURL
+curl -s -X GET "https://api.trackpilots.com/v1/..." \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  | jq '{code: .error.code, message: .error.message}'
+```
+
+</CodeGroup>
+
+---
+
+## Error Code Reference
+
+| Code | Status | Cause | Fix |
+|---|---|---|---|
+| `AUTHORIZATION_HEADER_MISSING` | 401 | No `Authorization` header sent | Add `Authorization: Bearer YOUR_API_KEY` |
+| `INVALID_API_KEY_SCHEMA` | 401 | Header does not start with `Bearer` | Use `Bearer ` prefix |
+| `API_KEY_MISSING` | 401 | Key value is empty after `Bearer` | Ensure key is not `undefined` or blank |
+| `INVALID_API_KEY` | 401 | Key is not recognised or deactivated | Regenerate key from the dashboard |
+| `PLAN_EXPIRED` | 401 | Subscription expired or Free plan | Upgrade plan from **Billing** |
+
+---
+
+## Support
+
+For persistent errors after following the steps above:
+
+- **Email:** team@trackpilots.com
+- **In-app chat:** Available from the bottom-right corner of the dashboard

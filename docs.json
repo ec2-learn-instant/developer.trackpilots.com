@@ -119,6 +119,16 @@
       },
       {
         "tab": "API reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "icon": "book-open",
+            "pages": [
+              "api-reference/getting-started",
+              "api-reference/errors"
+            ]
+          }
+        ],
         "openapi": "/openapi.yaml"
       },
       {
