@@ -123,10 +123,7 @@
           {
             "group": "Overview",
             "icon": "book-open",
-            "pages": [
-              "api-reference/getting-started",
-              "api-reference/errors"
-            ]
+            "pages": ["api-reference/getting-started", "api-reference/errors"]
           }
         ],
         "openapi": "/openapi.yaml"

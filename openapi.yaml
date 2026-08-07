@@ -16,6 +16,9 @@ tags:
   - name: Teams
     description: Team management APIs
 
+  - name: Settings
+    description: Organisation and team settings management APIs
+
   - name: Desktop Events
     description: Desktop agent webhook events
 
@@ -1695,6 +1698,100 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
 
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /v1/settings/category:
+    get:
+      summary: Fetch All Categories
+      description: >
+        Retrieve all available app and website productivity categories for the organisation.
+      tags:
+        - Settings
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: All work categories retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/200FetchAllCategoriesSuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /v1/settings/review-apps-and-sites:
+    post:
+      summary: Fetch Review Apps and Websites
+      description: >
+        Retrieve a paginated list of tracked applications and websites for a team,
+        with optional filtering by app type and name search.
+      tags:
+        - Settings
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FetchReviewAppsAndSitesRequest"
+      responses:
+        "200":
+          description: Fetched apps and sites successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/200FetchReviewAppsAndSitesSuccessResponse"
+        "400":
+          description: Request validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/400FetchReviewAppsAndSitesValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    patch:
+      summary: Update Review App and Websites
+      description: >
+        Update the productivity rating, idle-ignore flag, and category
+        for a specific tracked app or website within a team.
+      tags:
+        - Settings
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateReviewAppsAndSitesRequest"
+      responses:
+        "200":
+          description: App tracking settings updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/200UpdateReviewAppsAndSitesSuccessResponse"
+        "400":
+          description: Request validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/400UpdateReviewAppsAndSitesValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          description: App not found for the given team
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/404ReviewAppsAndSitesNotFoundErrorResponse"
         "500":
           $ref: "#/components/responses/InternalServerError"
 
@@ -9395,6 +9492,324 @@ components:
             code:
               type: string
               example: INVALID_USER_ID
+        data:
+          nullable: true
+          example: null
+
+    200FetchAllCategoriesSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        statusCode:
+          type: integer
+          example: 200
+        statusMessage:
+          type: string
+          example: All work categories retrieved successfully
+        error:
+          type: object
+          nullable: true
+          example: null
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              categoryName:
+                type: string
+                example: Analytics Apps
+              categoryColor:
+                type: string
+                description: Hex color code representing the category
+                example: "#FF5733"
+          example:
+            - categoryName: Analytics Apps
+              categoryColor: "#FF5733"
+            - categoryName: Book Keeping
+              categoryColor: "#33FF57"
+            - categoryName: Calendar Meetings
+              categoryColor: "#3357FF"
+            - categoryName: Calls
+              categoryColor: "#FF33A1"
+            - categoryName: Communication
+              categoryColor: "#A133FF"
+            - categoryName: Content Writing and Marketing
+              categoryColor: "#FF8C00"
+            - categoryName: Customer Support
+              categoryColor: "#FFC300"
+            - categoryName: Design
+              categoryColor: "#900C3F"
+            - categoryName: Developer Tools
+              categoryColor: "#581845"
+            - categoryName: Digital Marketing
+              categoryColor: "#008080"
+            - categoryName: Engineering Tools
+              categoryColor: "#4682B4"
+            - categoryName: Finance
+              categoryColor: "#FF4500"
+            - categoryName: Learning
+              categoryColor: "#FFD700"
+            - categoryName: Marketing
+              categoryColor: "#FA8072"
+            - categoryName: MS Office Tools
+              categoryColor: "#808000"
+            - categoryName: Office Tools
+              categoryColor: "#708090"
+            - categoryName: Other
+              categoryColor: "#D2691E"
+            - categoryName: Project Management
+              categoryColor: "#A52A2A"
+            - categoryName: Sales
+              categoryColor: "#9932CC"
+            - categoryName: Security & Compliance
+              categoryColor: "#FF6347"
+            - categoryName: SEO Analytics
+              categoryColor: "#20B2AA"
+            - categoryName: Social Media Apps
+              categoryColor: "#DC143C"
+            - categoryName: Software Development
+              categoryColor: "#FFD700"
+            - categoryName: Unknown Category
+              categoryColor: "#002569"
+            - categoryName: Unethical Apps
+              categoryColor: "#8B0000"
+            - categoryName: Voice & Video
+              categoryColor: "#7FFF00"
+            - categoryName: Work
+              categoryColor: "#8A2BE2"
+
+    FetchReviewAppsAndSitesRequest:
+      type: object
+      required:
+        - teamId
+        - offset
+        - limit
+        - appType
+      properties:
+        teamId:
+          type: string
+          format: uuid
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        offset:
+          type: integer
+          minimum: 0
+          example: 0
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          example: 20
+        searchAppName:
+          type: string
+          example: chrome
+        appType:
+          type: string
+          enum:
+            - application
+            - website
+            - all
+          example: all
+
+    200FetchReviewAppsAndSitesSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        statusCode:
+          type: integer
+          example: 200
+        statusMessage:
+          type: string
+          example: Fetched apps and sites successfully
+        error:
+          type: object
+          nullable: true
+          example: null
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                type: object
+                properties:
+                  appName:
+                    type: string
+                    example: Google Chrome
+                  appType:
+                    type: string
+                    enum:
+                      - application
+                      - website
+                    example: application
+                  appIconUrl:
+                    type: string
+                    nullable: true
+                    example: https://trackpilots.s3.amazonaws.com/icons/chrome.png
+                  appCategory:
+                    type: string
+                    nullable: true
+                    description: Category name from the categories list (e.g. from GET /v1/settings/category)
+                    example: Software Development
+                  appProductivity:
+                    type: string
+                    example: productive
+                  isIgnoreIdle:
+                    type: boolean
+                    example: false
+                  teamId:
+                    type: string
+                    format: uuid
+                    example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+            totalCount:
+              type: integer
+              example: 42
+            offset:
+              type: integer
+              example: 0
+            limit:
+              type: integer
+              example: 20
+
+    400FetchReviewAppsAndSitesValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        statusCode:
+          type: integer
+          example: 400
+        statusMessage:
+          type: string
+          example: Request validation failed
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "teamId: Invalid teamId format. Must be a UUID"
+            code:
+              type: string
+              example: VALIDATION_ERROR
+        data:
+          nullable: true
+          example: null
+
+    UpdateReviewAppsAndSitesRequest:
+      type: object
+      required:
+        - appName
+        - appProductivity
+        - isIgnoreIdle
+        - teamId
+      properties:
+        appName:
+          type: string
+          example: Google Chrome
+        appProductivity:
+          type: string
+          example: productive
+        isIgnoreIdle:
+          type: boolean
+          example: false
+        teamId:
+          type: string
+          format: uuid
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        appCategory:
+          type: string
+          nullable: true
+          description: Category name from the categories list (e.g. from GET /v1/settings/category)
+          example: Software Development
+
+    200UpdateReviewAppsAndSitesSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        statusCode:
+          type: integer
+          example: 200
+        statusMessage:
+          type: string
+          example: App tracking settings updated successfully
+        error:
+          type: object
+          nullable: true
+          example: null
+        data:
+          type: object
+          properties:
+            appName:
+              type: string
+              example: Google Chrome
+            appProductivity:
+              type: string
+              example: productive
+            isIgnoreIdle:
+              type: boolean
+              example: false
+            teamId:
+              type: string
+              format: uuid
+              example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+            appCategory:
+              type: string
+              nullable: true
+              description: Category name from the categories list (e.g. from GET /v1/settings/category)
+              example: Software Development
+
+    400UpdateReviewAppsAndSitesValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        statusCode:
+          type: integer
+          example: 400
+        statusMessage:
+          type: string
+          example: Request validation failed
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "appName: appName is required"
+            code:
+              type: string
+              example: VALIDATION_ERROR
+        data:
+          nullable: true
+          example: null
+
+    404ReviewAppsAndSitesNotFoundErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        statusCode:
+          type: integer
+          example: 404
+        statusMessage:
+          type: string
+          example: App not found
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              example: No app found with the given name for this team
+            code:
+              type: string
+              example: APP_NOT_FOUND
         data:
           nullable: true
           example: null
