@@ -1,0 +1,159 @@
+---
+title: "MCP Server"
+description: "Connect ChatGPT, Claude, Cursor or Codex to your Trackpilots data with the read-only MCP server"
+icon: "robot"
+---
+
+import { Callout } from "mintlify";
+
+<Callout type="info">
+🧪 **Beta**
+
+The MCP Server is in beta. It is read-only: no tool can create, change or delete data in Trackpilots.
+</Callout>
+
+## 📌 Overview
+
+The Trackpilots **MCP Server** lets AI assistants answer questions about your organisation in plain language. Ask who is working right now, what a team logged this week, or how one person's time breaks down.
+
+MCP (Model Context Protocol) is an open standard that connects AI tools to external data. The server exposes Trackpilots data as read-only tools.
+
+**Endpoint:** `https://mcp.trackpilots.com/mcp`
+
+For a short setup guide, see [mcp.trackpilots.com](https://mcp.trackpilots.com/).
+
+---
+
+## ✅ Before You Start
+
+- You need a Trackpilots account with **Full Access**.
+- You need a **Trackpilots API key**. Create one from the **Developer Tools → API Keys** page. See [API Keys](/docs/developer-tools/api-keys).
+- Your organisation can keep up to **5 API keys**.
+
+---
+
+## 🔌 How It Works
+
+<Steps>
+<Step title="Add the endpoint">
+Add `https://mcp.trackpilots.com/mcp` to your AI client as a remote MCP server. No install is needed.
+</Step>
+<Step title="Sign in once">
+Paste your Trackpilots API key on the sign-in page. The server checks it with the Trackpilots API before access is granted.
+</Step>
+<Step title="Ask in plain language">
+The assistant calls the matching tool, such as `list_employees` or `get_work_summary`, and answers from the data it returns.
+</Step>
+</Steps>
+
+Every call uses your API key, so Trackpilots' own access rules still decide what data you can see.
+
+---
+
+## ⚙️ Set Up Your AI Client
+
+<Tabs>
+<Tab title="ChatGPT">
+1. Open **Settings → Apps**. If you can't see the option to create an app, turn on **Developer mode** under Advanced settings.
+2. Select **Create** and enter `https://mcp.trackpilots.com/mcp`.
+3. Choose **OAuth** as the authentication type, then sign in with your API key.
+4. Start a new chat and enable the Trackpilots app.
+
+<Callout type="info">
+ChatGPT's menu names can change. The URL and the OAuth setting are what matter.
+</Callout>
+</Tab>
+
+<Tab title="Claude">
+1. Open **Settings → Connectors → Add custom connector**.
+2. Enter `https://mcp.trackpilots.com/mcp` and leave request headers empty.
+3. Select **Add** and sign in with your API key.
+</Tab>
+
+<Tab title="Claude Code">
+Run this command:
+
+```bash
+claude mcp add --transport http trackpilots https://mcp.trackpilots.com/mcp
+```
+
+Then run `/mcp` inside Claude Code, choose `trackpilots`, and sign in.
+</Tab>
+
+<Tab title="Cursor">
+Add this to `~/.cursor/mcp.json`, then sign in when Cursor asks:
+
+```json
+{
+  "mcpServers": {
+    "trackpilots": {
+      "type": "http",
+      "url": "https://mcp.trackpilots.com/mcp"
+    }
+  }
+}
+```
+</Tab>
+
+<Tab title="Codex CLI">
+Run both commands. The first registers the server and the second opens the sign-in page:
+
+```bash
+codex mcp add trackpilots --url https://mcp.trackpilots.com/mcp
+codex mcp login trackpilots
+```
+
+Or add this to `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.trackpilots]
+url = "https://mcp.trackpilots.com/mcp"
+```
+</Tab>
+</Tabs>
+
+---
+
+## 🧰 Available Tools
+
+Dates use `YYYY-MM-DD HH:mm:ss`. Time zones are IANA names such as `Asia/Kolkata`. If you don't pass a time zone, the server default is used. Ask the assistant to list employees or teams first to get the IDs the other tools need.
+
+| Group | Tools |
+|---|---|
+| Directory | `list_employees`, `list_teams` |
+| Dashboard | `get_recent_employee_activity`, `get_work_summary`, `get_work_time_analysis` |
+| My Team | `get_my_team`, `get_team_member_time_logs`, `get_my_team_work_summary`, `get_my_team_screenshots`, `get_my_team_apps_and_websites_usage` |
+| Proof of Work | `get_screenshots`, `get_timesheet`, `get_timeline`, `get_app_usage_timeline`, `get_app_usage_work_summary`, `get_websites_usage`, `get_apps_usage` |
+| Settings and access | `get_work_day_settings`, `get_expected_work_hours_settings`, `get_screenshot_settings`, `get_idle_alert_settings`, `get_stealth_monitoring_settings`, `get_default_settings`, `get_access_roles` |
+| Report analysis | `get_monthly_summary_report`, `get_attendance_summary_report`, `get_delayed_check_in_report`, `get_extra_hours_summary_report` |
+
+---
+
+## 🔒 Security
+
+- **Read-only:** no tool can create, edit or delete anything in Trackpilots.
+- **Key handling:** your API key is checked when you sign in and held in server memory. It is not written to disk or logged.
+- **Sign-out:** a server restart signs everyone out, so you may need to sign in again.
+- **Revoke access:** delete the API key on the **API Keys** page. Every client that uses it loses access on its next request.
+
+<Callout type="warning">
+🔐 **Keep Your Key Private**
+
+Never paste your API key into a chat, a shared document or a public repository.
+</Callout>
+
+---
+
+## 🛠️ Troubleshooting
+
+**The sign-in page says my key was rejected.**
+Copy the key again from the **API Keys** page without extra spaces, then try once more.
+
+**The sign-in page says "Sign-in expired".**
+Sign-in requests expire after 10 minutes, and a server restart clears them. Start the connection again from your AI client.
+
+**A tool returns an HTTP 500 error.**
+The error comes from the Trackpilots API, not the MCP server. Try again later. Contact support if it keeps happening.
+
+**The assistant can't find a user or team.**
+Check that your account can see that person or team. Access follows the same rules as the rest of Trackpilots.

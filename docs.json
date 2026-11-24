@@ -86,6 +86,7 @@
             "icon": "code",
             "pages": [
               "docs/developer-tools/api-keys",
+              "docs/developer-tools/mcp",
               "docs/developer-tools/webhooks",
               "docs/developer-tools/simulations"
             ]
