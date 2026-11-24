@@ -10,32 +10,48 @@ import { Callout } from "mintlify";
 
 Trackpilots APIs are designed to help organizations integrate employee activity, productivity, and compliance data directly into their internal systems.
 
-<Callout icon="key" color="#FFC107" iconType="regular">API Access – Coming Soon 🚀</Callout>
+<Callout icon="key" color="#22C55E" iconType="regular">API access is available. Create your key from Developer Tools → API Keys.</Callout>
+
+## Step 1: Create an API key
+
+1. Open **Developer Tools → API Keys** in your Trackpilots dashboard. Direct link: [app.trackpilots.com/developer-tools/api-keys](https://app.trackpilots.com/developer-tools/api-keys)
+2. Select **Create API Key**, give it a name, and save.
+3. Copy the key and store it securely. See [API Keys](/docs/developer-tools/api-keys) for details.
 
 <Note>
-We’re currently finalizing API access and documentation.  
+You need a Trackpilots account with **Full Access**. Each organisation can keep up to 5 API keys.
 </Note>
 
-<Note>This page will be updated soon with authentication details, endpoints, and usage examples.</Note>
+## Step 2: Authenticate your requests
 
-## What you’ll be able to do
-Once available, the Trackpilots API will allow you to:
+Send your API key as a Bearer token in the `Authorization` header:
 
-- Securely authenticate using API keys or tokens  
-- Access user, activity, and productivity data  
-- Build custom dashboards and internal reports  
-- Receive real-time events via webhooks  
-- Integrate Trackpilots with HR, payroll, and BI tools  
+```http
+Authorization: Bearer YOUR_API_KEY
+```
+
+## What you can do
+
+With the Trackpilots API you can:
+
+- Authenticate using API keys
+- Access user, activity, and productivity data
+- Build custom dashboards and internal reports
+- Receive real-time events via webhooks
+- Integrate Trackpilots with HR, payroll, and BI tools
 
 ## Who is this for?
-- Engineering teams building internal integrations  
-- Organizations requiring advanced reporting  
-- Enterprise customers needing customized API access  
 
-## Early or customized API access
-If you need early access or customized API integrations, please contact us:
+- Engineering teams building internal integrations
+- Organizations requiring advanced reporting
+- Enterprise customers needing customized API access
+
+## Customized API access
+
+API keys are self-serve. For customized API integrations, contact us:
 
 📧 **team@trackpilots.com**
 
-> We’re building the Trackpilots API with scalability, security, and developer experience as top priorities.  
-> Stay tuned — detailed documentation is coming soon.
+<Note>
+Browse the endpoints in the API Reference tab. Each endpoint page shows its parameters and example responses.
+</Note>
