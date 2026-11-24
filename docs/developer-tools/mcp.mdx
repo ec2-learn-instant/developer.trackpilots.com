@@ -1,22 +1,22 @@
 ---
 title: "MCP Server"
-description: "Connect ChatGPT, Claude, Cursor or Codex to your Trackpilots data with the read-only MCP server"
+description: "Connect ChatGPT, Claude, Cursor or Codex to your Trackpilots data with the MCP server"
 icon: "robot"
 ---
 
 import { Callout } from "mintlify";
 
 <Callout type="info">
-🧪 **Beta**
+🔐 **Safe to Use**
 
-The MCP Server is in beta. It is read-only: no tool can create, change or delete data in Trackpilots.
+The MCP Server cannot create, change or delete data in Trackpilots.
 </Callout>
 
 ## 📌 Overview
 
 The Trackpilots **MCP Server** lets AI assistants answer questions about your organisation in plain language. Ask who is working right now, what a team logged this week, or how one person's time breaks down.
 
-MCP (Model Context Protocol) is an open standard that connects AI tools to external data. The server exposes Trackpilots data as read-only tools.
+MCP (Model Context Protocol) is an open standard that connects AI tools to external data. The server exposes Trackpilots data as tools.
 
 **Endpoint:** `https://mcp.trackpilots.com/mcp`
 
@@ -131,7 +131,7 @@ Dates use `YYYY-MM-DD HH:mm:ss`. Time zones are IANA names such as `Asia/Kolkata
 
 ## 🔒 Security
 
-- **Read-only:** no tool can create, edit or delete anything in Trackpilots.
+- **Data safety:** no tool can create, edit or delete anything in Trackpilots.
 - **Key handling:** your API key is checked when you sign in and held in server memory. It is not written to disk or logged.
 - **Sign-out:** a server restart signs everyone out, so you may need to sign in again.
 - **Revoke access:** delete the API key on the **API Keys** page. Every client that uses it loses access on its next request.
